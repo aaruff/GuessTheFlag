@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    let countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"]
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        ZStack {
+            VStack(spacing: 30) {
+                ForEach(0..<3, id: \.self) { i in
+                    Button(action: {print("clicked on \(countries[i])")}, label: {
+                        Image("\(countries[i])")
+                            .renderingMode(.original)
+                            .border(.black)
+                    })
+                }
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
