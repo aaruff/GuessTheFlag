@@ -10,21 +10,23 @@ import SwiftUI
 struct ContentView: View {
     let flagsPerChoice = 3
     
-    var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
-    var randomChosenFlag : Int
+    @State var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
+    @State var randomChosenFlag : Int
     
     @State var score = 0
     @State var choiceMade = false
     @State var choiceOutcome = ""
     
     func generateNewQuestion() {
-        countries.shuffled()
+        randomChosenFlag = Int.random(in: 0..<3)
+        countries = countries.shuffled()
         choiceMade = false
     }
     
     func flagSelectionHandler(choice: Int) {
         if choice == randomChosenFlag {
             choiceOutcome = "Correct"
+            score += 1
         }
         else {
             choiceOutcome = "Incorrect"
@@ -36,6 +38,8 @@ struct ContentView: View {
     
     init(){
         randomChosenFlag = Int.random(in: 0..<3)
+        countries.shuffled()
+        choiceMade = false
     }
     
     var body: some View {
@@ -43,6 +47,7 @@ struct ContentView: View {
             VStack(spacing: 30) {
                 VStack {
                     Text("Pick the flag for \(countries[randomChosenFlag])")
+                        .font(.subheadline.weight(.heavy))
                 }
                 ForEach(0..<flagsPerChoice, id: \.self) { i in
                     Button(
@@ -53,12 +58,14 @@ struct ContentView: View {
                         Image("\(countries[i])")
                             .renderingMode(.original)
                             .border(.black)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
                         }
                     )
-                    .alert(choiceOutcome, isPresented: $choiceMade) {
-                        Button("OK", role: .cancel){
-                            choiceMade = false
-                        }
+                    .alert(isPresented: $choiceMade) {
+                        Alert(
+                            title: Text(choiceOutcome),
+                            message: Text("Your Current Score: \(score)"),
+                            dismissButton:  .default(Text("OK")){generateNewQuestion()})
                     }
                 }
                 .navigationBarTitle("Guess The Flag")
