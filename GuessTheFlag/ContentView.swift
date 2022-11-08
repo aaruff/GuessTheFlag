@@ -8,28 +8,50 @@
 import SwiftUI
 
 struct ContentView: View {
-    let flagsPerChoice = 3
+    let flagsPerRound = 3
+    let totalRounds = 8
+    let scoreMultiplier = 2
     
     @State var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State var randomChosenFlag : Int
     
-    @State var score = 0
+    @State var guessCount = 0
+    @State var correctCount = 0
+    @State var missCount = 0
+    @State var flagSelected = 0
     @State var choiceMade = false
-    @State var choiceOutcome = ""
+    @State var outcomeTitle = ""
+    @State var outcomeMessage = ""
+    
+    @State var finalScore = 0
+    @State var showEndgameSheet = false
+    
+    @State var round: Int
     
     func generateNewQuestion() {
-        randomChosenFlag = Int.random(in: 0..<3)
+        if round < totalRounds {
+            round += 1
+            guessCount += 1
+        }
+        else {
+            round = 1
+        }
+        
+        randomChosenFlag = Int.random(in: 0..<flagsPerRound)
         countries = countries.shuffled()
         choiceMade = false
     }
     
     func flagSelectionHandler(choice: Int) {
         if choice == randomChosenFlag {
-            choiceOutcome = "Correct"
-            score += 1
+            correctCount += 1
+            outcomeTitle = "Excellent!"
+            outcomeMessage = "You correctly chose the flag for \(countries[choice])."
         }
         else {
-            choiceOutcome = "Incorrect"
+            missCount += 1
+            outcomeTitle = "Sorry..."
+            outcomeMessage = "You chose the flag for \(countries[choice]) not \(countries[randomChosenFlag])."
         }
             
         choiceMade = true
@@ -37,38 +59,126 @@ struct ContentView: View {
     
     
     init(){
-        randomChosenFlag = Int.random(in: 0..<3)
+        round = 1
+        randomChosenFlag = Int.random(in: 0..<flagsPerRound)
         countries.shuffled()
         choiceMade = false
     }
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 30) {
-                VStack {
-                    Text("Pick the flag for \(countries[randomChosenFlag])")
-                        .font(.subheadline.weight(.heavy))
-                }
-                ForEach(0..<flagsPerChoice, id: \.self) { i in
-                    Button(
-                        action: {
-                            flagSelectionHandler(choice: i)
-                        },
-                        label: {
-                        Image("\(countries[i])")
-                            .renderingMode(.original)
-                            .border(.black)
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
+            
+            VStack() {
+                Spacer()
+                    .frame(height: 40)
+                
+                Text("Pick the flag for **\(countries[randomChosenFlag])**")
+                Spacer()
+                    .frame(height: 40)
+                
+                    
+                VStack(spacing: 30) {
+                    ForEach(0..<flagsPerRound, id: \.self) { i in
+                        Button(
+                            action: {
+                                flagSelected = i
+                                flagSelectionHandler(choice: i)
+                            },
+                            label: {
+                                Image("\(countries[i])")
+                                    .renderingMode(.original)
+                                    .border(.black
+                                    )
+                            }
+                        )
+                        .alert(isPresented: $choiceMade) {
+                            Alert(
+                                title: Text(outcomeTitle),
+                                message: Text(outcomeMessage),
+                                dismissButton:  .default(Text("OK")){
+                                    if round == totalRounds {
+                                        finalScore = correctCount*scoreMultiplier
+                                        showEndgameSheet = true
+                                    }
+                                    generateNewQuestion()
+                                })
                         }
-                    )
-                    .alert(isPresented: $choiceMade) {
-                        Alert(
-                            title: Text(choiceOutcome),
-                            message: Text("Your Current Score: \(score)"),
-                            dismissButton:  .default(Text("OK")){generateNewQuestion()})
                     }
                 }
-                .navigationBarTitle("Guess The Flag")
+                .padding()
+                Spacer()
+                    .frame(height: 50)
+                
+                HStack(spacing: 10) {
+                    VStack{
+                        Text("Score")
+                            .foregroundColor(.white)
+                        Text("\(correctCount * scoreMultiplier)")
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                        
+                    }
+                    .padding()
+                    .background(.orange)
+                    .cornerRadius(20)
+                    
+                    VStack{
+                        Text("Round")
+                            .foregroundColor(.white)
+                        Text("\(round)")
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                        
+                    }
+                    .padding()
+                    .background(.gray)
+                    .cornerRadius(20)
+                }
+            }
+            .sheet(isPresented: $showEndgameSheet) {
+                VStack {
+                    Text("Complete")
+                        .font(.largeTitle)
+                        .padding()
+                    
+                    VStack{
+                        Text("Final Score")
+                            .foregroundColor(.white)
+                        Text("\(finalScore)")
+                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                        
+                    }
+                    .padding()
+                    .background(.orange)
+                    .cornerRadius(20)
+                    
+                    HStack {
+                        VStack{
+                            Text("Correct")
+                                .foregroundColor(.white)
+                            Text("\(correctCount)")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                            
+                        }
+                        .padding()
+                        .background(.green)
+                        .cornerRadius(20)
+                        
+                        VStack{
+                            Text("Incorrect")
+                                .foregroundColor(.white)
+                            Text("\(totalRounds-correctCount)")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                            
+                        }
+                        .padding()
+                        .background(.red)
+                        .cornerRadius(20)
+                    }
+                }
             }
         }
     }
