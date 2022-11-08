@@ -17,13 +17,13 @@ struct ContentView: View {
     
     @State var guessCount = 0
     @State var correctCount = 0
-    @State var missCount = 0
     @State var flagSelected = 0
     @State var choiceMade = false
     @State var outcomeTitle = ""
     @State var outcomeMessage = ""
     
     @State var finalScore = 0
+    @State var finalCorrect = 0
     @State var showEndgameSheet = false
     
     @State var round: Int
@@ -35,6 +35,8 @@ struct ContentView: View {
         }
         else {
             round = 1
+            guessCount = 0
+            correctCount = 0
         }
         
         randomChosenFlag = Int.random(in: 0..<flagsPerRound)
@@ -49,7 +51,6 @@ struct ContentView: View {
             outcomeMessage = "You correctly chose the flag for \(countries[choice])."
         }
         else {
-            missCount += 1
             outcomeTitle = "Sorry..."
             outcomeMessage = "You chose the flag for \(countries[choice]) not \(countries[randomChosenFlag])."
         }
@@ -97,6 +98,7 @@ struct ContentView: View {
                                 message: Text(outcomeMessage),
                                 dismissButton:  .default(Text("OK")){
                                     if round == totalRounds {
+                                        finalCorrect = correctCount
                                         finalScore = correctCount*scoreMultiplier
                                         showEndgameSheet = true
                                     }
@@ -157,7 +159,7 @@ struct ContentView: View {
                         VStack{
                             Text("Correct")
                                 .foregroundColor(.white)
-                            Text("\(correctCount)")
+                            Text("\(finalCorrect)")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                             
@@ -169,7 +171,7 @@ struct ContentView: View {
                         VStack{
                             Text("Incorrect")
                                 .foregroundColor(.white)
-                            Text("\(totalRounds-correctCount)")
+                            Text("\(totalRounds-finalCorrect)")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                             
