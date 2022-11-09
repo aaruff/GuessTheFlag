@@ -7,6 +7,27 @@
 
 import SwiftUI
 
+struct GameDataRectangle: View {
+    var title: String
+    var value: Int
+    var color: Color
+    
+    var body: some View {
+        VStack{
+            Text(title)
+                .foregroundColor(.white)
+            Text("\(value)")
+                .foregroundColor(.white)
+                .fontWeight(.bold)
+            
+        }
+        .padding()
+        .background(color)
+        .cornerRadius(20)
+        
+    }
+}
+
 struct ContentView: View {
     let flagsPerRound = 3
     let totalRounds = 8
@@ -112,29 +133,8 @@ struct ContentView: View {
                     .frame(height: 50)
                 
                 HStack(spacing: 10) {
-                    VStack{
-                        Text("Score")
-                            .foregroundColor(.white)
-                        Text("\(correctCount * scoreMultiplier)")
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                        
-                    }
-                    .padding()
-                    .background(.orange)
-                    .cornerRadius(20)
-                    
-                    VStack{
-                        Text("Round")
-                            .foregroundColor(.white)
-                        Text("\(round)")
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                        
-                    }
-                    .padding()
-                    .background(.gray)
-                    .cornerRadius(20)
+                    GameDataRectangle(title: "Score", value: correctCount * scoreMultiplier, color: .orange)
+                    GameDataRectangle(title: "Round", value: round, color: .gray)
                 }
             }
             .sheet(isPresented: $showEndgameSheet) {
@@ -143,42 +143,11 @@ struct ContentView: View {
                         .font(.largeTitle)
                         .padding()
                     
-                    VStack{
-                        Text("Final Score")
-                            .foregroundColor(.white)
-                        Text("\(finalScore)")
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                        
-                    }
-                    .padding()
-                    .background(.orange)
-                    .cornerRadius(20)
+                    GameDataRectangle(title: "Final Score", value: finalScore, color: .orange)
                     
                     HStack {
-                        VStack{
-                            Text("Correct")
-                                .foregroundColor(.white)
-                            Text("\(finalCorrect)")
-                                .foregroundColor(.white)
-                                .fontWeight(.bold)
-                            
-                        }
-                        .padding()
-                        .background(.green)
-                        .cornerRadius(20)
-                        
-                        VStack{
-                            Text("Incorrect")
-                                .foregroundColor(.white)
-                            Text("\(totalRounds-finalCorrect)")
-                                .foregroundColor(.white)
-                                .fontWeight(.bold)
-                            
-                        }
-                        .padding()
-                        .background(.red)
-                        .cornerRadius(20)
+                        GameDataRectangle(title: "Correct", value: finalCorrect, color: .green)
+                        GameDataRectangle(title: "Incorrect", value: totalRounds-finalCorrect, color: .red)
                     }
                 }
             }
